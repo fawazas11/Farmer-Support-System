@@ -1,0 +1,127 @@
+{% extends 'Admin/Header.html' %}
+{% load static %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    td {
+        vertical-align: middle !important;
+    }
+    .content-box {
+        max-width: 350px;
+        text-align: left;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Farmer Complaints</h5>
+        </div>
+
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover text-center align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>SI No</th>
+                        <th>User Name</th>
+                        <th>Title</th>
+                        <th>Complaint</th>
+                        <th>Date</th>
+                        <th>Reply</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for i in comp %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+
+                        <td>{{ i.farmer.farmer_name }}</td>
+
+                        <td class="fw-semibold">
+                            {{ i.complaint_title }}
+                        </td>
+
+                        <!-- READ MORE CONTENT -->
+                        <td class="content-box">
+                            <span id="short-{{i.id}}">
+                                {{ i.complaint_content|truncatechars:80 }}
+                            </span>
+
+                            <span id="full-{{i.id}}" class="d-none">
+                                {{ i.complaint_content }}
+                            </span>
+
+                            {% if i.complaint_content|length > 80 %}
+                            <br>
+                            <a href="javascript:void(0)"
+                               class="text-primary fw-bold"
+                               id="btn-{{i.id}}"
+                               onclick="toggleContent('{{i.id}}')">
+                                Read More
+                            </a>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ i.complaint_date }}
+                        </td>
+                        <td>
+                            {% if i.complaint_status == 0 %}
+                            Pending
+                            </a>
+                            {% else %}
+                            {{i.complaint_replay}}
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if i.complaint_status == 0 %}
+                            <a href="{% url 'Admin:Reaplay' i.id %}"
+                               class="btn btn-sm btn-success">
+                                Reply
+                            </a>
+                            {% else %}
+                            Replied
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-muted">
+                            No complaints available
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+
+</div>
+
+<!-- READ MORE SCRIPT -->
+<script>
+function toggleContent(id) {
+    let shortText = document.getElementById("short-" + id);
+    let fullText = document.getElementById("full-" + id);
+    let btn = document.getElementById("btn-" + id);
+
+    if (fullText.classList.contains("d-none")) {
+        fullText.classList.remove("d-none");
+        shortText.classList.add("d-none");
+        btn.innerText = "Read Less";
+    } else {
+        fullText.classList.add("d-none");
+        shortText.classList.remove("d-none");
+        btn.innerText = "Read More";
+    }
+}
+</script>
+
+{% endblock content %}

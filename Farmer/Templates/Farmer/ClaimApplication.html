@@ -1,0 +1,45 @@
+{% extends 'Farmer/Header.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center text-success mb-4"><i class="fas fa-file-alt"></i> Submit Claim Request</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- Claim Details -->
+                        <div class="mb-3">
+                            <label for="txt_details" class="form-label fw-bold">Claim Details</label>
+                            <textarea class="form-control" name="txt_details" id="txt_details" rows="5" placeholder="Describe your claim in detail..."></textarea>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="mb-3">
+                            <label for="file" class="form-label fw-bold">Upload Supporting Document</label>
+                            <input class="form-control" type="file" name="file" id="file">
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill px-4">
+                                <i class="fas fa-paper-plane"></i> Submit Claim
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+    window.location = "{% url 'Farmer:MyInsurance' %}";
+</script>
+{% endif %}
+{% endblock content %}

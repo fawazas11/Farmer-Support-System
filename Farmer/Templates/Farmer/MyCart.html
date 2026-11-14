@@ -1,0 +1,226 @@
+
+{% extends 'Farmer/Header.html' %}
+{% block content %}
+{% load mathfilters %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f9f4;
+        }
+
+        .cart-card {
+            margin-top: 50px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .cart-card-header {
+            background: linear-gradient(135deg, #2e7d32, #66bb6a);
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .cart-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+
+        .cart-item img {
+            width: 80px;
+            border-radius: 8px;
+        }
+
+        .product-title {
+            font-weight: 600;
+        }
+
+        .product-category {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .product-price,
+        .product-line-price {
+            font-weight: 500;
+        }
+
+        .qty-input {
+            width: 60px;
+        }
+
+        .remove-btn {
+            color: #fff;
+            background-color: #c66;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .remove-btn:hover {
+            background-color: #a44;
+        }
+
+        .totals {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .checkout-btn {
+            background-color: #2e7d32;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 25px;
+            border: none;
+            font-size: 1.1rem;
+        }
+
+        .checkout-btn:hover {
+            background-color: #1b5e20;
+        }
+
+        @media(max-width:768px) {
+            .cart-item {
+                text-align: center;
+            }
+
+            .qty-input {
+                margin-top: 10px;
+            }
+
+            .remove-btn {
+                margin-top: 10px;
+            }
+
+            .totals {
+                text-align: center;
+            }
+
+            .checkout-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="con text-end mt-3">
+            <a href="{% url 'Farmer:HomePage' %}" class="btn btn-success">🏠 Home</a>
+        </div>
+
+        <div class="card shadow cart-card">
+            <div class="cart-card-header">
+                🛒 My Cart
+            </div>
+            <div class="card-body">
+                {% if cartdata|length == 0 %}
+                <p class="text-center text-muted mt-3">Your cart is empty</p>
+                {% else %}
+                <form id="cartForm" data-quantity-url="{% url 'Farmer:cartqty' %}" method="POST">
+                    {% csrf_token %}
+                    {% for i in cartdata %}
+                    <div class="row cart-item align-items-center" data-cart-id="{{i.id}}">
+                        <div class="col-2 col-md-2 text-center">
+                            <img src="{{i.product.product_photo.url}}" alt="{{i.product.product_name}}">
+                        </div>
+                        <div class="col-4 col-md-4">
+                            <div class="product-title">{{i.product.product_name}}</div>
+                            <div class="product-category">Category: {{i.product.category.category_name}}</div>
+                        </div>
+                        <div class="col-2 col-md-2 product-price">₹ {{i.product.product_price}}</div>
+                        <div class="col-2 col-md-2">
+                            <input type="number" class="form-control qty-input" min="1" max="10" value="{{i.cart_quantity}}">
+                        </div>
+                        <div class="col-2 col-md-2">
+                            <a href="{% url 'Farmer:delcart' i.id %}" class="remove-btn" style="text-decoration: none;">Remove</a>
+                        </div>
+                        <div class="col-12 col-md-12 mt-2 text-end product-line-price">
+                            Total: ₹ {{i.cart_quantity|mul:i.product.product_price}}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="totals">
+                        Grand Total: ₹ <span id="cart-total">0</span>
+                        <input type="hidden" name="carttotalamt" id="cart-totalamt" value="">
+                    </div>
+                    <div class="text-end mt-3">
+                        <button type="submit" class="checkout-btn" name="btn_checkout">Checkout</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function recalculateCart() {
+            let total = 0;
+            $(".cart-item").each(function () {
+                let linePrice = parseFloat($(this).find(".product-line-price").text().replace(/[^0-9.]/g, ''));
+                total += linePrice;
+            });
+            $("#cart-total").text(total.toFixed(2));
+            $("#cart-totalamt").val(total.toFixed(2));
+        }
+
+        $(document).ready(function () {
+            recalculateCart();
+
+            // Quantity change
+            $(".qty-input").on("change", function () {
+                let quantity = $(this).val();
+                if (quantity < 1) $(this).val(1);
+                let row = $(this).closest(".cart-item");
+                let price = parseFloat(row.find(".product-price").text().replace(/[^0-9.]/g, ''));
+                row.find(".product-line-price").text("Total: ₹ " + (price * quantity).toFixed(2));
+                recalculateCart();
+
+                // Send AJAX to update backend quantity
+                let cartId = row.data("cart-id");
+                let url = $("#cartForm").data("quantity-url");
+                $.ajax({
+                    url: url,
+                    data: { QTY: quantity, ALT: cartId }
+                });
+            });
+
+            // Remove item
+            $(".remove-btn").click(function () {
+                let row = $(this).closest(".cart-item");
+                let cartId = row.data("cart-id");
+                row.remove();
+                recalculateCart();
+
+                // Optionally send AJAX to remove from backend
+                let url = "{% url 'Farmer:delcart' 0 %}".slice(0, -2) + cartId;
+                $.ajax({ url: url });
+            });
+        });
+    </script>
+</body>
+
+</html>
+{% endblock content %}

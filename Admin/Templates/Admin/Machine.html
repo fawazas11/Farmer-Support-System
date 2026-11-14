@@ -1,0 +1,233 @@
+{% extends 'Admin/Header.html' %}
+{% load static %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Card Styling */
+    .custom-card {
+        border: none;
+        border-radius: 16px;
+        background: #ffffff;
+        transition: transform 0.2s ease;
+    }
+
+    .header-accent {
+        background: linear-gradient(45deg, #4e73df 0%, #224abe 100%);
+        border-radius: 16px 16px 0 0 !important;
+        padding: 1.2rem;
+    }
+
+    .header-dark {
+        background: #1a1c23;
+        border-radius: 16px 16px 0 0 !important;
+        padding: 1.2rem;
+    }
+
+    /* Machine Image Styling */
+    .machine-img {
+        width: 120px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border: 2px solid #fff;
+    }
+
+    /* Form Controls */
+    .form-control {
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #dee2e6;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.1);
+        border-color: #4e73df;
+    }
+
+    /* Buttons */
+    .btn-action {
+        border-radius: 10px;
+        padding: 10px 25px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-submit {
+        background: #4e73df;
+        color: white;
+        border: none;
+    }
+
+    .btn-submit:hover {
+        background: #2e59d9;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
+    }
+
+    /* Table Styling */
+    .table thead th {
+        background-color: #f8f9fc;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05rem;
+        color: #4e73df;
+        border: none;
+    }
+
+    .price-tag {
+        color: #1cc88a;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .details-text {
+        max-width: 250px;
+        color: #5a5c69;
+    }
+</style>
+
+<div class="container py-5">
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-7">
+            <div class="card custom-card shadow-lg">
+                <div class="card-header header-accent text-white">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-cog me-2"></i> Register New Equipment</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Machine Name</label>
+                                <input type="text" name="txt_name" class="form-control" placeholder="e.g. Industrial Drill" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Price (₹)</label>
+                                <input type="number" name="price" class="form-control" placeholder="0.00" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Specifications/Details</label>
+                                <textarea name="txt_details" class="form-control" rows="3" placeholder="Enter technical specifications..." required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Machine Photo</label>
+                                <div class="input-group">
+                                    <input type="file" name="photo" class="form-control" id="inputGroupFile02" required>
+                                    <label class="input-group-text" for="inputGroupFile02"><i class="fas fa-upload"></i></label>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center mt-4">
+                                <button type="submit" class="btn btn-action btn-submit">
+                                    <i class="fas fa-plus-circle me-2"></i>Add Machine to Inventory
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card custom-card shadow">
+                <div class="card-header header-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i> Inventory List</h5>
+                    <span class="badge bg-primary">{{ machine|length }} Items</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">No.</th>
+                                    <th>Equipment</th>
+                                    <th>Description</th>
+                                    <th>Visual</th>
+                                    <th>Unit Price</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in machine %}
+                                <tr>
+                                    <td class="ps-4 text-muted">{{ forloop.counter }}</td>
+                                    <td><span class="fw-bold text-dark">{{ i.machine_name }}</span></td>
+                                    <td class="details-text">
+                                        <div id="short-{{i.id}}" class="small">
+                                            {{ i.machine_details|truncatechars:70 }}
+                                        </div>
+                                        <div id="full-{{i.id}}" class="d-none small">
+                                            {{ i.machine_details }}
+                                        </div>
+                                        {% if i.machine_details|length > 70 %}
+                                        <a href="javascript:void(0)" class="text-decoration-none x-small fw-bold text-primary" 
+                                           onclick="toggleDetails('{{i.id}}')" id="btn-{{i.id}}">View More</a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <img src="{{ i.machine_photo.url }}" class="machine-img">
+                                    </td>
+                                    <td><span class="price-tag">₹{{ i.machine_price }}</span></td>
+                                    <td class="text-center">
+                                        <a href="{% url 'Admin:delmechine' i.id %}" 
+                                           class="btn btn-sm btn-outline-danger btn-action"
+                                           onclick="return confirm('Remove this machine from inventory?')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="fas fa-box-open fa-3x mb-3 opacity-25"></i>
+                                        <p>Your inventory is currently empty.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleDetails(id) {
+    let shortText = document.getElementById("short-" + id);
+    let fullText = document.getElementById("full-" + id);
+    let btn = document.getElementById("btn-" + id);
+
+    if (fullText.classList.contains("d-none")) {
+        fullText.classList.remove("d-none");
+        shortText.classList.add("d-none");
+        btn.innerText = "Show Less";
+    } else {
+        fullText.classList.add("d-none");
+        shortText.classList.remove("d-none");
+        btn.innerText = "View More";
+    }
+}
+</script>
+
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+    window.location = "{% url 'Admin:Machine' %}";
+</script>
+{% endif %}
+
+{% endblock content %}

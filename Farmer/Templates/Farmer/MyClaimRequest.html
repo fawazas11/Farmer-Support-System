@@ -1,0 +1,236 @@
+{% extends 'Farmer/Header.html' %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap"
+    rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+    :root {
+        --agri-dark: #1b5e20;
+        --agri-primary: #2e7d32;
+        --agri-gradient: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+    }
+
+    body {
+        background-color: #f8fafb;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .page-header {
+        background: var(--agri-gradient);
+        color: white;
+        padding: 40px 20px;
+        border-radius: 24px;
+        box-shadow: 0 12px 30px rgba(46, 125, 50, 0.15);
+        margin-top: 20px;
+    }
+
+    .agri-card {
+        border: none;
+        border-radius: 24px;
+        background: #ffffff;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+        margin-top: -30px;
+        overflow: hidden;
+    }
+
+    /* Table Styling */
+    .table thead th {
+        background-color: #f1f5f9;
+        color: #64748b;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        font-weight: 700;
+        padding: 20px;
+        border: none;
+    }
+
+    .table tbody td {
+        padding: 24px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f0fdf4 !important;
+        transition: 0.3s;
+    }
+
+    /* Status Badge Overrides */
+    .status-pill {
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .pill-pending {
+        background: #fffbeb;
+        color: #92400e;
+    }
+
+    .pill-accepted {
+        background: #f0fdf4;
+        color: #166534;
+    }
+
+    .pill-credited {
+        background: #eff6ff;
+        color: #1e40af;
+    }
+
+    .pill-rejected {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+    .read-more {
+        font-size: 0.75rem;
+        text-decoration: none;
+        color: var(--agri-primary);
+        font-weight: 700;
+        margin-top: 8px;
+        display: block;
+    }
+
+    .btn-view-file {
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 6px 14px;
+        font-size: 0.85rem;
+    }
+</style>
+
+<div class="container pb-5">
+
+    <div class="page-header text-center mb-5">
+        <div class="mb-2">
+            <i class="bi bi-shield-check-fill display-5"></i>
+        </div>
+        <h2 class="fw-bold mb-1">Insurance Records</h2>
+        <p class="mb-0 opacity-75">Transparency in your financial protection and claim recovery</p>
+    </div>
+
+    <div class="card agri-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-center">Ref #</th>
+                        <th>Incident & Claim Details</th>
+                        <th>Evidence</th>
+                        <th>Est. Amount</th>
+                        <th class="text-center">Processing Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for i in data %}
+                    <tr>
+                        <td class="text-center text-muted fw-bold">0{{ forloop.counter }}</td>
+
+                        <td style="max-width: 320px;">
+                            <div class="short-text text-dark">
+                                {{ i.claim_details|truncatechars:85 }}
+                            </div>
+                            <div class="full-text d-none text-dark">
+                                {{ i.claim_details }}
+                            </div>
+
+                            {% if i.claim_details|length > 85 %}
+                            <a href="javascript:void(0)" class="read-more" onclick="toggleReadMore(this)">
+                                <i class="bi bi-plus-circle"></i> VIEW FULL DETAILS
+                            </a>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if i.claim_file %}
+                            <a href="{{ i.claim_file.url }}" class="btn btn-outline-success btn-view-file"
+                                target="_blank">
+                                <i class="bi bi-file-earmark-pdf"></i> View Doc
+                            </a>
+                            {% else %}
+                            <span class="text-muted small">No Document</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="fw-bold text-dark">₹ {{ i.claim_amount }}</div>
+                            <small class="text-muted">Total Claim Value</small>
+                        </td>
+
+                        <td class="text-center">
+                            {% if i.claim_status == 0 %}
+                            <div class="status-pill pill-pending">
+                                <i class="bi bi-hourglass-split"></i> Under Review
+                            </div>
+
+                            {% elif i.claim_status == 1 %}
+                            <div class="status-pill pill-accepted">
+                                <i class="bi bi-check2-circle"></i> Claim Approved
+                            </div>
+
+                            {% elif i.claim_status == 4 %}
+                            <div class="status-pill pill-credited">
+                                <i class="bi bi-cash-stack"></i> Amount Disbursed
+                            </div>
+                            {% elif i.claim_status == 5 %}
+                            <div class="status-pill pill-credited">
+                                <i class="bi bi-cash-stack"></i> Amount Added
+                            </div>
+
+                             {% elif i.claim_status == 6 %}
+                            <div class="status-pill pill-credited">
+                                <i class="bi bi-cash-stack"></i>Amount Disbursed
+                            </div>
+
+                            {% else %}
+                            <div class="status-pill pill-rejected">
+                                <i class="bi bi-x-circle"></i> Claim Declined
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="bi bi-folder2-open display-4 text-muted mb-3 d-block"></i>
+                            <h5 class="text-muted">No Claims Found</h5>
+                            <p class="small text-muted">You haven't filed any insurance claims yet.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function toggleReadMore(el) {
+        const td = el.closest('td');
+        const shortText = td.querySelector('.short-text');
+        const fullText = td.querySelector('.full-text');
+
+        if (fullText.classList.contains('d-none')) {
+            fullText.classList.remove('d-none');
+            shortText.classList.add('d-none');
+            el.innerHTML = '<i class="bi bi-dash-circle"></i> HIDE DETAILS';
+        } else {
+            fullText.classList.add('d-none');
+            shortText.classList.remove('d-none');
+            el.innerHTML = '<i class="bi bi-plus-circle"></i> VIEW FULL DETAILS';
+        }
+    }
+</script>
+
+{% endblock content %}

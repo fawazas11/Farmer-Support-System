@@ -1,0 +1,145 @@
+{% extends 'Farmer/Header.html' %}
+{% block content %}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f7fb;
+    }
+
+    .container {
+        width: 80%;
+        margin: 30px auto;
+    }
+
+    .card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table tr td, table tr th {
+        padding: 10px;
+        text-align: center;
+    }
+
+    table tr th {
+        background: #4facfe;
+        color: white;
+    }
+
+    table tr:nth-child(even) {
+        background: #f2f2f2;
+    }
+
+    input[type="text"] {
+        width: 95%;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    input[type="text"]:focus {
+        border-color: #4facfe;
+        box-shadow: 0 0 5px #4facfe;
+    }
+
+    input[type="submit"] {
+        background: #4facfe;
+        color: white;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    input[type="submit"]:hover {
+        background: #007bff;
+    }
+
+    .delete-btn {
+        text-decoration: none;
+        background: #ff4d4d;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+
+    .delete-btn:hover {
+        background: #cc0000;
+    }
+</style>
+
+<div class="container">
+
+    <!-- Add Feedback -->
+    <div class="card">
+        <h2>Add Feedback</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            <table>
+                <tr>
+                    <td><b>Content</b></td>
+                    <td><input type="text" name="txt_name" required></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="Submit">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <!-- Feedback Table -->
+    <div class="card">
+        <h2>Feedback List</h2>
+        <table>
+            <tr>
+                <th>SNo</th>
+                <th>Content</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+
+            {% for i in feeddata %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{i.feedback_content}}</td>
+                <td>{{i.feedback_date}}</td>
+                <td>
+                    <a href="{% url 'Farmer:delfeed' i.id %}" class="delete-btn">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+
+        </table>
+    </div>
+
+</div>
+
+{% if msg %}
+<script>
+alert("{{msg}}")
+window.location="{% url 'Farmer:Feedback' %}"
+</script>
+{% endif %}
+
+{% endblock content %}

@@ -1,0 +1,200 @@
+{% extends 'Officer/Header.html' %}
+{% load static %}
+{% load mathfilters %}
+{% block content %}
+
+<div style="margin-top:90px"></div>
+
+<div class="container py-5">
+
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-success display-6">
+            <i class="fas fa-clipboard-list me-2"></i>My Bookings
+        </h1>
+        <p class="text-muted">Track and manage all customer orders in one place</p>
+    </div>
+
+    {% for b in bookings %}
+    <div class="card booking-card mb-5">
+
+        <!-- Card Header -->
+        <div class="card-header booking-header">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">Order #{{ b.id }}</h6>
+                    <small><i class="fas fa-calendar"></i> {{ b.booking_date }}</small>
+                </div>
+
+                <div class="text-end">
+                    <span class="badge bg-light text-dark px-3 py-2 me-2">
+                        <i class="fas fa-user"></i> {{ b.farmer.farmer_name }}
+                    </span>
+                    <span class="badge bg-warning text-dark px-3 py-2">
+                        <i class="fas fa-indian-rupee-sign"></i> {{ b.booking_amount }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover align-middle text-center mb-0">
+                <thead class="table-head">
+                    <tr>
+                        <th>#</th>
+                        <th>Photo</th>
+                        <th class="text-start">Product</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for c in b.tbl_cart_set.all %}
+                {% if c.product.seller_id == request.session.sid %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+
+                        <td>
+                            <img src="{{ c.product.product_photo.url }}" class="product-img">
+                        </td>
+
+                        <td class="text-start">
+                            <strong>{{ c.product.product_name }}</strong>
+
+                            <p class="small text-muted mb-1">
+                                {% if c.product.product_description|length > 60 %}
+                                    {{ c.product.product_description|slice:":60" }}...
+                                    <span class="read-more"
+                                          data-bs-toggle="collapse"
+                                          data-bs-target="#desc{{ c.id }}">
+                                          Read More
+                                    </span>
+
+                                    <span id="desc{{ c.id }}" class="collapse">
+                                        {{ c.product.product_description }}
+                                    </span>
+                                {% else %}
+                                    {{ c.product.product_description }}
+                                {% endif %}
+                            </p>
+
+                            <span class="fw-bold text-success">
+                                ₹{{ c.product.product_price }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="badge bg-info px-3">{{ c.cart_quantity }}</span>
+                        </td>
+
+                        <td class="fw-bold text-dark">
+                            ₹{{ c.cart_quantity|mul:c.product.product_price }}
+                        </td>
+
+                        <td>
+                            {% if b.booking_status == 1 %}
+                                <a href="{% url 'Officer:collect' b.id %}"
+                                   class="btn btn-success btn-sm px-3">
+                                   <i class="fas fa-check"></i> Collect
+                                </a>
+                            {% else %}
+                                <span class="badge bg-success px-3 py-2">
+                                    <i class="fas fa-circle-check"></i> Completed
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% endfor %}
+                </tbody>
+
+                <!-- Footer -->
+                <tfoot>
+                    <tr class="table-footer">
+                        <td colspan="4" class="text-end fw-bold">Order Total</td>
+                        <td colspan="2" class="fw-bold text-success">
+                            ₹{{ b.booking_amount }}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    {% empty %}
+    <div class="alert alert-warning text-center shadow-sm">
+        <i class="fas fa-box-open fa-2x mb-2"></i>
+        <h5>No bookings available</h5>
+        <p class="mb-0">Once customers place orders, they’ll appear here.</p>
+    </div>
+    {% endfor %}
+
+</div>
+
+<!-- ===================== STYLES ===================== -->
+<style>
+body{
+    background: linear-gradient(135deg,#e8f5e9,#f1f8e9);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Card */
+.booking-card{
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 15px 35px rgba(0,0,0,.12);
+    transition:.4s;
+}
+.booking-card:hover{
+    transform:translateY(-6px);
+}
+
+/* Header */
+.booking-header{
+    background:linear-gradient(135deg,#2e7d32,#66bb6a);
+    color:white;
+}
+
+/* Table */
+.table-head th{
+    background:#c8e6c9;
+    color:#1b5e20;
+    position:sticky;
+    top:0;
+    z-index:2;
+}
+
+.table-footer{
+    background:#f1f8e9;
+}
+
+/* Product Image */
+.product-img{
+    width:85px;
+    height:85px;
+    object-fit:cover;
+    border-radius:12px;
+    border:2px solid #a5d6a7;
+}
+
+/* Read more */
+.read-more{
+    cursor:pointer;
+    color:#1b5e20;
+    font-weight:600;
+}
+.read-more:hover{
+    text-decoration:underline;
+}
+
+/* Buttons */
+.btn-success{
+    border-radius:20px;
+    font-weight:600;
+}
+</style>
+
+{% endblock %}

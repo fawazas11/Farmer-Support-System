@@ -1,0 +1,172 @@
+
+<style>
+    body {
+        background: linear-gradient(135deg, #eef2f7, #d9e4f5);
+    }
+
+    .payment-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 90vh;
+    }
+
+    .payment-card {
+        width: 420px;
+        background: #fff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .payment-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    .form-input:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    }
+
+    .row-flex {
+        display: flex;
+        gap: 10px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #3498db, #2ecc71);
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+</style>
+
+<div class="payment-container">
+    <div class="payment-card">
+
+        <div class="payment-title">💳 Payment Details</div>
+
+        <form method="post" id="paymentForm">
+            {% csrf_token %}
+
+            <!-- Card Number -->
+            <div class="form-group">
+                <label class="form-label">Card Number</label>
+                <input type="text" name="card_number" class="form-input"
+                       placeholder="1234 5678 9012 3456"
+                       maxlength="19" required>
+            </div>
+
+            <!-- Holder Name -->
+            <div class="form-group">
+                <label class="form-label">Card Holder Name</label>
+                <input type="text" name="holder_name" class="form-input"
+                       placeholder="John Doe"
+                       pattern="^[A-Za-z ]+$"
+                       title="Only alphabets allowed"
+                       required>
+            </div>
+
+            <!-- Expiry + CVV -->
+            <div class="row-flex">
+                <div class="form-group" style="flex:1;">
+                    <label class="form-label">Expiry Date</label>
+                    <input type="month" name="expiry_date" class="form-input" required>
+                </div>
+
+                <div class="form-group" style="flex:1;">
+                    <label class="form-label">CVV</label>
+                    <input type="password" name="cvv" class="form-input"
+                           maxlength="3"
+                           pattern="[0-9]{3}"
+                           title="Enter 3 digit CVV"
+                           required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Pay Now</button>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- JS Validation -->
+<script>
+    document.getElementById("paymentForm").addEventListener("submit", function(e){
+
+        let card = document.querySelector("input[name='card_number']").value.replace(/\s/g, '');
+        let cvv = document.querySelector("input[name='cvv']").value;
+        let expiry = document.querySelector("input[name='expiry_date']").value;
+
+        // Card number validation (16 digits)
+        if (!/^[0-9]{16}$/.test(card)) {
+            alert("❌ Card number must be 16 digits");
+            e.preventDefault();
+            return false;
+        }
+
+        // CVV validation
+        if (!/^[0-9]{3}$/.test(cvv)) {
+            alert("❌ CVV must be 3 digits");
+            e.preventDefault();
+            return false;
+        }
+
+        // Expiry date validation
+        let today = new Date();
+        let selected = new Date(expiry);
+
+        if (selected < today) {
+            alert("❌ Card expiry date is invalid");
+            e.preventDefault();
+            return false;
+        }
+
+        return true;
+    });
+
+    // Auto format card number (spaces)
+    document.querySelector("input[name='card_number']").addEventListener("input", function(e){
+        let value = e.target.value.replace(/\D/g, '').substring(0,16);
+        let formatted = value.match(/.{1,4}/g);
+        e.target.value = formatted ? formatted.join(" ") : value;
+    });
+</script>
+

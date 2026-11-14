@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+</head>
+<body>
+<table border="2">
+    <tr>
+        <td>SI No</td>
+        <td>Name</td>
+        <td>Email</td>
+        <td>Contact</td>
+        <td>Adress</td>
+        <td>Photo</td>
+        <td>District</td>
+        <td>Place</td>
+    </tr>
+    {% for i in view %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{i.user_name}}</td>
+            <td>{{i.user_email}}</td>
+            <td>{{i.user_contact}}</td>
+            <td>{{i.user_address}}</td>
+            <td ><img src="{{i.user_photo.url}}" width="150"></td>
+
+            <td>{{i.place.district.district_name}}</td>
+            <td>{{i.place.place_name}}</td>
+            <td><a href="{% url 'Admin:Accept' i.id %}">Accept</a>
+                <a href="{% url 'Admin:Reject' i.id %}">Reject</a>
+            
+            </td>
+        </tr>
+        {% endfor %}
+</table>
+
+<br>
+<h2>Accepted Users</h2>
+<table border="2">
+    <tr>
+        <td>SI No</td>
+        <td>Name</td>
+        <td>Email</td>
+        <td>Contact</td>
+        <td>Adress</td>
+        <td>Photo</td>
+        <td>District</td>
+        <td>Place</td>
+    </tr>
+    {% for i in accuser %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{i.user_name}}</td>
+            <td>{{i.user_email}}</td>
+            <td>{{i.user_contact}}</td>
+            <td>{{i.user_address}}</td>
+            <td ><img src="{{i.user_photo.url}}" width="150"></td>
+            <td>{{i.place.district.district_name}}</td>
+            <td>{{i.place.place_name}}</td>
+            <td><a href="{% url 'Admin:Accept' i.id %}">Accept</a>
+                <a href="{% url 'Admin:Reject' i.id %}">Reject</a>
+            
+            </td>
+        </tr>
+        {% endfor %}
+</table>
+
+</table>
+
+<br>
+<h2>Rejected User</h2>
+<table border="2">
+    <tr>
+        <td>SI No</td>
+        <td>Name</td>
+        <td>Email</td>
+        <td>Contact</td>
+        <td>Adress</td>
+        <td>Photo</td>
+        <td>District</td>
+        <td>Place</td>
+    </tr>
+    {% for i in rejuser %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{i.user_name}}</td>
+            <td>{{i.user_email}}</td>
+            <td>{{i.user_contact}}</td>
+            <td>{{i.user_address}}</td>
+            <td ><img src="{{i.user_photo.url}}" width="150"></td>
+
+            <td>{{i.place.district.district_name}}</td>
+            <td>{{i.place.place_name}}</td>
+            <td><a href="{% url 'Admin:Accept' i.id %}">Accept</a>
+                <a href="{% url 'Admin:Reject' i.id %}">Reject</a>
+            
+            </td>
+        </tr>
+        {% endfor %}
+</table>
+
+</body>
+</html>
+{% if msg %}
+<script>
+alert("{{msg}}")
+window.location="{% url 'Admin:Userlist'  %}"
+</script>
+{% endif %}

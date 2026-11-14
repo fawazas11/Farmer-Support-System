@@ -1,0 +1,247 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Registration</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #2e7d32, #66bb6a);
+            color: #fff;
+            text-align: center;
+            padding: 25px;
+        }
+
+        .card-header h3 {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 30px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        .btn-success {
+            border-radius: 30px;
+            font-weight: 600;
+            padding: 10px 30px;
+        }
+
+        .btn-outline-secondary {
+            border-radius: 30px;
+            padding: 10px 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-tractor"></i> Farmer Registration</h3>
+            <p class="mb-0">Join our smart farming community</p>
+        </div>
+
+        <div class="card-body p-4">
+            <form action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    <!-- Name -->
+                    <div class="col-md-6">
+                        <label><i class="fas fa-user"></i> Name</label>
+                        <input type="text" name="txt_name" class="form-control" placeholder="Full Name"
+                            pattern="^[A-Z]+[a-zA-Z ]*$" title="First letter must be capital, alphabets only" required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" name="txt_email" class="form-control" placeholder="Email Address" required>
+                    </div>
+
+                    <!-- Contact -->
+                    <div class="col-md-6">
+                        <label><i class="fas fa-phone"></i> Contact</label>
+                        <input type="text" name="contact_no" class="form-control" placeholder="Enter Phone Number"
+                            pattern="[0-9]{10}" title="Enter 10 digit phone number" required>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="col-md-6">
+                        <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                        <input type="text" name="txt_address" class="form-control" placeholder="Address" required>
+                    </div>
+
+                    <!-- Photo -->
+                    <div class="col-md-6">
+                        <label><i class="fas fa-image"></i> Photo</label>
+                        <input type="file" name="photo" class="form-control" required>
+                    </div>
+
+                    <!-- ID Proof -->
+                    <div class="col-md-6">
+                        <label><i class="fas fa-id-card"></i> ID Proof</label>
+                        <input type="file" name="id_proof" class="form-control" required>
+                    </div>
+
+                    <!-- District -->
+                    <div class="col-md-6">
+                        <label><i class="fas fa-map"></i> District</label>
+                        <select name="sel_district" id="sel_district" class="form-select" required>
+                            <option value="">-- Select District --</option>
+                            {% for i in district %}
+                            <option value="{{ i.id }}">{{ i.district_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Place -->
+                    <div class="col-md-6">
+                        <label><i class="fas fa-location-dot"></i> Place</label>
+                        <select name="sel_place" id="sel_place" class="form-select" required>
+                            <option value="">-- Select Place --</option>
+                        </select>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="col-md-6">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="Password"
+                            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                            title="At least 8 characters, 1 uppercase, 1 lowercase, 1 number" required>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="col-md-6">
+                        <label><i class="fas fa-lock"></i> Confirm Password</label>
+                        <input type="password" name="re_password" class="form-control" placeholder="Confirm Password"
+                            required>
+                    </div>
+
+                    <!-- Bank Details Section -->
+                    <div class="col-12 mt-4">
+                        <h5 class="text-success border-bottom pb-2">
+                            <i class="fas fa-university me-2"></i>Bank Account Details
+                        </h5>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label><i class="fas fa-bank"></i> Bank Name</label>
+                        <input type="text" name="txt_bank" id="txt_bank" list="bank_list" class="form-control" placeholder="Search or Enter Bank Name" required>
+                        <datalist id="bank_list">
+                            <option value="State Bank of India">
+                            <option value="HDFC Bank">
+                            <option value="ICICI Bank">
+                            <option value="Axis Bank">
+                            <option value="Kotak Mahindra Bank">
+                            <option value="IndusInd Bank">
+                            <option value="Bank of Baroda">
+                            <option value="Punjab National Bank">
+                            <option value="Union Bank of India">
+                            <option value="Canara Bank">
+                            <option value="Federal Bank">
+                            <option value="South Indian Bank">
+                            <option value="IDBI Bank">
+                            <option value="Yes Bank">
+                            <option value="Indian Bank">
+                            <option value="Central Bank of India">
+                            <option value="UCO Bank">
+                            <option value="Indian Overseas Bank">
+                        </datalist>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label><i class="fas fa-list-ol"></i> Account Number</label>
+                        <input type="text" name="txt_account" class="form-control" placeholder="Enter Account Number" pattern="[0-9]{9,18}" title="9 to 18 digits only" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label><i class="fas fa-code"></i> IFSC Code</label>
+                        <input type="text" name="txt_ifsc" class="form-control" placeholder="Enter IFSC Code" pattern="^[A-Z]{4}0[A-Z0-9]{6}$" title="e.g., SBIN0001234" required>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success me-2">
+                        <i class="fas fa-user-plus"></i> Register
+                    </button>
+                    <button type="reset" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-xmark"></i> Cancel
+                    </button>
+                    <a href="{% url 'Guest:Login' %}" class="btn btn-primary me-2">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </a>
+                    <a href="{% url 'Guest:index' %}" class="btn btn-outline-info">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- AJAX for Place -->
+    <script>
+        $("#sel_district").change(function () {
+            var did = $(this).val();
+            var ur = "{% url 'Guest:ajaxplace' %}";
+
+            $.ajax({
+                url: ur,
+                data: { did: did },
+                success: function (data) {
+                    $("#sel_place").html(data);
+                }
+            });
+        });
+    </script>
+
+    {% if msg %}
+    <script>
+        alert("{{ msg }}");
+        window.location = "{% url 'Guest:FarmerRegistration' %}";
+    </script>
+    {% endif %}
+
+    <!-- Bootstrap JS -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> -->
+
+</body>
+
+</html>

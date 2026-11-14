@@ -1,0 +1,135 @@
+{% extends 'Officer/Header.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container-fluid py-5" style="background: linear-gradient(145deg, #f0f4f0 0%, #e8f5e9 100%); min-height: 90vh;">
+    <div class="container">
+        <!-- Section Title -->
+        <div class="text-center mb-5 animate__animated animate__fadeInDown">
+            <h1 class="display-4 fw-bold text-success mb-2">
+                <i class="fas fa-user-circle me-3"></i>Officer Profile
+            </h1>
+            <p class="lead text-muted">Manage your personal information and account security.</p>
+            <div class="mx-auto" style="width: 80px; height: 4px; background: #2e7d32; border-radius: 2px;"></div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg overflow-hidden animate__animated animate__fadeInUp" style="border-radius: 24px;">
+                    <div class="row g-0">
+                        <!-- Sidebar / Photo Area -->
+                        <div class="col-md-4 text-center p-5 d-flex flex-column align-items-center justify-content-center bg-success text-white">
+                            <div class="position-relative mb-4">
+                                <div class="profile-img-container shadow-sm">
+                                    <img src="{% if data.officer_photo %}{{ data.officer_photo.url }}{% else %}{% static 'Main/img/default_user.png' %}{% endif %}"
+                                         alt="Profile Photo"
+                                         class="img-fluid rounded-circle"
+                                         style="width: 180px; height: 180px; object-fit: cover; border: 6px solid rgba(255,255,255,0.3);">
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-1">{{ data.officer_name }}</h3>
+                            <p class="text-white-50 mb-4 ls-1">Dedicated Agricultural Officer</p>
+                            
+                            <div class="mt-auto w-100">
+                                <a href="{% url 'Officer:Editprofile' %}" class="btn btn-light w-100 mb-3 rounded-pill fw-bold py-2 shadow-sm transition-hover">
+                                    <i class="fas fa-edit me-2"></i>Edit Profile
+                                </a>
+                                <a href="{% url 'Officer:Changepassword' %}" class="btn btn-outline-light w-100 rounded-pill fw-bold py-2 transition-hover">
+                                    <i class="fas fa-key me-2"></i>Change Password
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Data Area -->
+                        <div class="col-md-8 bg-white p-5">
+                            <div class="d-flex align-items-center mb-4">
+                                <h4 class="fw-bold text-dark mb-0">Personal Information</h4>
+                                <div class="ms-3 flex-grow-1" style="height: 1px; background: #eee;"></div>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-sm-6 text-sm-start text-center">
+                                    <label class="small text-muted text-uppercase fw-bold mb-1">Full Name</label>
+                                    <p class="h6 fw-normal text-dark">{{ data.officer_name }}</p>
+                                </div>
+                                <div class="col-sm-6 text-sm-start text-center">
+                                    <label class="small text-muted text-uppercase fw-bold mb-1">Email Address</label>
+                                    <p class="h6 fw-normal text-dark">{{ data.officer_email }}</p>
+                                </div>
+                                <div class="col-sm-6 text-sm-start text-center">
+                                    <label class="small text-muted text-uppercase fw-bold mb-1">Contact Number</label>
+                                    <p class="h6 fw-normal text-dark">{{ data.officer_contact }}</p>
+                                </div>
+                                <div class="col-sm-6 text-sm-start text-center">
+                                    <label class="small text-muted text-uppercase fw-bold mb-1">Location Details</label>
+                                    <p class="h6 fw-normal text-dark">{{ data.place.district.district_name }}, {{ data.place.place_name }}</p>
+                                </div>
+                                <div class="col-12 text-sm-start text-center">
+                                    <label class="small text-muted text-uppercase fw-bold mb-1">Resident Address</label>
+                                    <p class="h6 fw-normal text-dark">{{ data.officer_address }}</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 p-4 rounded-4" style="background-color: #f9fbf9; border: 1px dashed #c1e1c1;">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success text-white rounded-circle p-2 me-3">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Account Secure</h6>
+                                        <p class="small text-muted mb-0">You are logged in as a verified officer of KisanMitra.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .ls-1 { letter-spacing: 1px; }
+    .transition-hover {
+        transition: all 0.3s ease;
+    }
+    .transition-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important;
+    }
+    .profile-img-container {
+        position: relative;
+        display: inline-block;
+    }
+    .profile-img-container::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        right: 15px;
+        width: 25px;
+        height: 25px;
+        background: #4caf50;
+        border: 4px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+</style>
+
+<!-- Alert Message -->
+{% if msg %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: '{{ msg }}',
+        confirmButtonColor: '#2e7d32'
+    }).then(() => {
+        window.location = "{% url 'Officer:Myprofile' %}";
+    });
+</script>
+{% endif %}
+
+{% endblock content %}
+

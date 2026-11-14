@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Claim Requests</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h3 class="text-center mb-4 text-success">🛡 Insurance Claim Requests</h3>
+
+    <table class="table table-bordered table-hover bg-white shadow-sm">
+        <thead class="table-success text-center">
+            <tr>
+                <th>#</th>
+                <th>Farmer</th>
+                <th>Details</th>
+                <th>File</th>
+                <th>Status / Action</th>
+            </tr>
+        </thead>
+
+        <tbody class="text-center">
+            {% for i in data %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ i.farmer_name }}</td>
+                <td>{{ i.claim_details }}</td>
+
+                <td>
+                    {% if i.claim_file %}
+                        <a href="{{ i.claim_file.url }}" class="btn btn-sm btn-outline-primary">View</a>
+                    {% else %}
+                        <span class="text-muted">No File</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if i.claim_status == 0 %}
+                        <a href="{% url 'Officer:AcceptClaim' i.id %}"
+                           class="btn btn-sm btn-success">
+                           ✅ Accept
+                        </a>
+
+                        <a href="{% url 'Officer:RejectClaim' i.id %}"
+                           class="btn btn-sm btn-danger">
+                           ❌ Reject
+                        </a>
+
+                    {% elif i.claim_status == 1 %}
+                        <span class="badge bg-success px-3 py-2">Accepted</span>
+
+                    {% elif i.claim_status == 2 %}
+                        <span class="badge bg-danger px-3 py-2">Rejected</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-muted">No claims available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+    window.location = "{% url 'Officer:ClaimRequests' %}";
+</script>
+{% endif %}

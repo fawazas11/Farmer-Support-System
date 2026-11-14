@@ -1,0 +1,207 @@
+{% extends 'Admin/Header.html' %}
+{% load static %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Poppins', sans-serif;
+    }
+    .main-card {
+        border: none;
+        border-radius: 15px;
+        transition: transform 0.3s ease;
+    }
+    .header-gradient {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        border-radius: 15px 15px 0 0 !important;
+    }
+    .header-dark {
+        background: linear-gradient(135deg, #232526 0%, #414345 100%);
+        border-radius: 15px 15px 0 0 !important;
+    }
+    .btn-submit {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        color: white;
+        font-weight: 500;
+        padding: 10px 30px;
+        border-radius: 8px;
+    }
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        color: white;
+    }
+    .table-container {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .table thead {
+        background-color: #f1f4f9;
+    }
+    .details-box {
+        max-width: 300px;
+        font-size: 0.9rem;
+    }
+    .badge-price {
+        background-color: #e8f0fe;
+        color: #1967d2;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    .action-btn {
+        transition: all 0.2s;
+        border-radius: 8px;
+    }
+    .action-btn:hover {
+        transform: scale(1.1);
+    }
+</style>
+
+<div class="container-fluid py-5">
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-6">
+            <div class="card main-card shadow-lg">
+                <div class="card-header header-gradient text-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i> Create New Insurance Scheme</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Scheme Name</label>
+                                <input type="text" name="txt_name" class="form-control form-control-lg" placeholder="Enter scheme title" required style="font-size: 1rem;">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Amount (₹)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">₹</span>
+                                    <input type="number" name="amount" class="form-control form-control-lg" placeholder="0.00" required style="font-size: 1rem;">
+                                </div>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold">Details & Description</label>
+                                <textarea name="txt_details" class="form-control" rows="3" placeholder="Describe the benefits..." required></textarea>
+                            </div>
+                            <div class="col-md-12 mb-4">
+                                <label class="form-label fw-bold">Supporting Document</label>
+                                <input type="file" name="file" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-submit btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i> Register Scheme
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mx-auto">
+            <div class="card main-card shadow-sm border-0">
+                <div class="card-header header-dark text-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0"><i class="fas fa-list-ul me-2"></i> Active Insurance Portfolios</h5>
+                    <span class="badge bg-light text-dark">{{ insu|length }} Schemes</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr class="text-secondary">
+                                    <th class="ps-4">#</th>
+                                    <th>Scheme Name</th>
+                                    <th>Coverage Details</th>
+                                    <th>Premium Amount</th>
+                                    <th>Document</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in insu %}
+                                <tr>
+                                    <td class="ps-4 text-muted">{{ forloop.counter }}</td>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ i.insurance_name }}</div>
+                                    </td>
+                                    <td class="details-box">
+                                        <div id="short-{{i.id}}">
+                                            {{ i.insurance_details|truncatechars:80 }}
+                                        </div>
+                                        <div id="full-{{i.id}}" class="d-none">
+                                            {{ i.insurance_details }}
+                                        </div>
+                                        {% if i.insurance_details|length > 80 %}
+                                        <a href="javascript:void(0)" class="text-primary text-decoration-none small fw-bold" 
+                                           id="btn-{{i.id}}" onclick="toggleDetails('{{i.id}}')">Read More</a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge-price">₹{{ i.insurance_amount }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ i.insurance_file.url }}" class="btn btn-sm btn-outline-secondary action-btn" target="_blank">
+                                            <i class="fas fa-file-pdf me-1"></i> View
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'Admin:delins' i.id %}" 
+                                           class="btn btn-sm btn-outline-danger action-btn"
+                                           onclick="return confirm('Permanent delete this scheme?')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" class="mb-3 opacity-50">
+                                        <p class="text-muted">No insurance schemes found in the database.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleDetails(id) {
+    const shortText = document.getElementById("short-" + id);
+    const fullText = document.getElementById("full-" + id);
+    const btn = document.getElementById("btn-" + id);
+
+    if (fullText.classList.contains("d-none")) {
+        fullText.classList.remove("d-none");
+        shortText.classList.add("d-none");
+        btn.innerText = "Show Less";
+    } else {
+        fullText.classList.add("d-none");
+        shortText.classList.remove("d-none");
+        btn.innerText = "Read More";
+    }
+}
+</script>
+
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+    window.location = "{% url 'Admin:InsuranceSchemes' %}";
+</script>
+{% endif %}
+
+{% endblock content %}

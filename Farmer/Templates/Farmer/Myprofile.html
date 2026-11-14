@@ -1,0 +1,112 @@
+{% extends 'Farmer/Header.html' %}
+{% block content %}
+<div class="container my-5">
+    <div class="card profile-card mx-auto col-md-8 col-lg-6 shadow-sm">
+        <!-- Header -->
+        <div class="profile-header">
+            <img src="{{ data.farmer_photo.url }}" class="profile-img" alt="Profile Photo">
+            <h4 class="mb-1">{{ data.farmer_name }}</h4>
+            <small class="text-light">Farmer Profile</small>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+            <table class="table table-borderless profile-table mb-4">
+                <tr>
+                    <td>Email</td>
+                    <td>{{ data.farmer_email }}</td>
+                </tr>
+                <tr>
+                    <td>Contact</td>
+                    <td>{{ data.farmer_contact }}</td>
+                </tr>
+                <tr>
+                    <td>Address</td>
+                    <td>{{ data.farmer_address }}</td>
+                </tr>
+                <tr>
+                    <td>District</td>
+                    <td>{{ data.place.district.district_name }}</td>
+                </tr>
+                <tr>
+                    <td>Place</td>
+                    <td>{{ data.place.place_name }}</td>
+                </tr>
+                {% if data.farmer_bank %}
+                <tr>
+                    <td>Bank</td>
+                    <td>{{ data.farmer_bank }}</td>
+                </tr>
+                <tr>
+                    <td>Account No</td>
+                    <td>{{ data.farmer_account }}</td>
+                </tr>
+                <tr>
+                    <td>IFSC</td>
+                    <td>{{ data.farmer_ifsc }}</td>
+                </tr>
+                {% endif %}
+            </table>
+
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'Farmer:Editprofile' %}" class="btn btn-success rounded-pill px-4 py-2">
+                    <i class="bi bi-pencil-square"></i> Edit Profile
+                </a>
+                <a href="{% url 'Farmer:Changepassword' %}" class="btn btn-warning rounded-pill px-4 py-2">
+                    <i class="bi bi-key"></i> Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Profile Card Styling */
+.profile-card {
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+.profile-header {
+    background: linear-gradient(135deg, #2e7d32, #66bb6a);
+    padding: 35px 20px;
+    text-align: center;
+    color: white;
+}
+
+.profile-img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid white;
+    margin-bottom: 10px;
+}
+
+.profile-table td:first-child {
+    font-weight: 600;
+    color: #2e7d32;
+    width: 40%;
+}
+
+.profile-table td {
+    padding: 12px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+</style>
+
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+    window.location = "{% url 'Farmer:Myprofile' %}";
+</script>
+{% endif %}
+{% endblock content %}

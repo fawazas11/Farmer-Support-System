@@ -1,0 +1,171 @@
+{% extends 'Officer/Header.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Spacing for fixed navbar -->
+<div style="margin-top:90px;"></div>
+
+<div class="container py-5">
+
+    <!-- Page Title -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-success">
+            <i class="fas fa-seedling"></i> Add New Product
+        </h1>
+        <p class="text-muted fs-5">
+            Manage crops & products and notify farmers instantly
+        </p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Add Product Card -->
+            <div class="card custom-card mb-5">
+                <div class="card-header custom-header text-center">
+                    <i class="fas fa-plus-circle"></i> Product Details
+                </div>
+                <div class="card-body p-4">
+
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-leaf"></i> Product Name
+                            </label>
+                            <input type="text" name="txt_name" class="form-control rounded-pill" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-align-left"></i> Product Details
+                            </label>
+                            <textarea name="txt_details" class="form-control rounded-4" rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-image"></i> Product Photo
+                            </label>
+                            <input type="file" name="photo" class="form-control rounded-pill" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-money-bill-wave"></i> Price
+                            </label>
+                            <input type="number" name="price" class="form-control rounded-pill" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-th-large"></i> Category
+                            </label>
+                            <select name="sel_category" class="form-select rounded-pill" required>
+                                <option value="">--- Select Category ---</option>
+                                {% for i in category %}
+                                <option value="{{ i.id }}">{{ i.category_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-custom px-5 py-2 rounded-pill">
+                                <i class="fas fa-plus"></i> Add Product
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- Existing Products -->
+            <div class="card custom-card">
+                <div class="card-header custom-header text-center">
+                    <i class="fas fa-boxes"></i> Existing Products
+                </div>
+
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-bordered align-middle text-center">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Sl.No</th>
+                                <th>Name</th>
+                                <th>Details</th>
+                                <th>Photo</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in Officer %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td class="fw-semibold">{{ i.product_name }}</td>
+                                <td>{{ i.product_details }}</td>
+                                <td>
+                                    <img src="{{ i.product_photo.url }}" width="70" class="rounded shadow">
+                                </td>
+                                <td>{{ i.category.category_name }}</td>
+                                <td>₹ {{ i.product_price }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-muted">No products added yet</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+    window.location = "{% url 'Officer:Addproduct' %}";
+</script>
+{% endif %}
+
+<!-- Custom Styles -->
+<style>
+body {
+    background: #e8f5e9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Card Style */
+.custom-card {
+    border-radius: 18px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    overflow: hidden;
+}
+
+/* Card Header */
+.custom-header {
+    background: linear-gradient(135deg, #2e7d32, #66bb6a);
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+/* Button */
+.btn-custom {
+    background: linear-gradient(135deg, #388e3c, #81c784);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-custom:hover {
+    background: linear-gradient(135deg, #1b5e20, #4caf50);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+</style>
+
+{% endblock content %}

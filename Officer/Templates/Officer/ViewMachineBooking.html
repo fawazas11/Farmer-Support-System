@@ -1,0 +1,201 @@
+{% extends 'Officer/Header.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Spacer for fixed navbar -->
+<div style="margin-top: 90px;"></div>
+
+<div class="container my-5">
+
+    <!-- Page Title -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-success">
+            <i class="fas fa-tractor"></i> Machine Bookings
+        </h2>
+        <p class="text-muted">Manage booked machines and farmer notifications</p>
+    </div>
+
+    {% for i in data %}
+    <div class="card card-booking">
+
+        <!-- Card Header -->
+        <div class="card-header card-header-booking">
+            <strong>Booking #{{ i.id }}</strong> |
+            {{ i.bookingmachine_date }} |
+            Farmer: {{ i.farmer.farmer_name }}
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Machine</th>
+                        <th>Details</th>
+                        <th>Photo</th>
+                        <th>Price</th>
+                        <th>Status / Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>{{ i.machine.machine_name }}</strong><br>
+                            <small>Email: {{ i.farmer.farmer_email }}</small><br>
+                            <small>Contact: {{ i.farmer.farmer_contact }}</small>
+                        </td>
+
+                        <td>
+                            {% if i.machine.machine_details|length > 50 %}
+                                <span id="short-desc-{{ i.id }}">
+                                    {{ i.machine.machine_details|slice:":50" }}...
+                                    <span class="read-more"
+                                          data-bs-toggle="collapse"
+                                          data-bs-target="#full-desc-{{ i.id }}">
+                                        Read More <i class="fas fa-angle-down"></i>
+                                    </span>
+                                </span>
+
+                                <span class="collapse" id="full-desc-{{ i.id }}">
+                                    {{ i.machine.machine_details }}
+                                    <span class="read-more"
+                                          data-bs-toggle="collapse"
+                                          data-bs-target="#full-desc-{{ i.id }}">
+                                        Read Less <i class="fas fa-angle-up"></i>
+                                    </span>
+                                </span>
+                            {% else %}
+                                {{ i.machine.machine_details }}
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <img src="{{ i.machine.machine_photo.url }}" class="machine-img">
+                        </td>
+
+                        <td class="fw-bold">
+                            ₹ {{ i.machine.machine_price }}
+                        </td>
+
+                        <td>
+                            {% if i.bookingmachine_status == 2 %}
+                                <span class="status-badge status-payment">
+                                    Payment Success
+                                </span>
+                                <a href="{% url 'Officer:Alert' i.id %}"
+                                   class="btn-alert">
+                                    <i class="fas fa-bell"></i> Alert
+                                </a>
+
+                            {% elif i.bookingmachine_status == 3 %}
+                                <span class="status-badge status-notify">
+                                    Payment & Notification Sent
+                                </span>
+
+                            {% elif i.bookingmachine_status == 4 %}
+                                <span class="status-badge status-collected">
+                                    Machine Collected
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% empty %}
+    <div class="alert alert-warning text-center">
+        No machine bookings found.
+    </div>
+    {% endfor %}
+</div>
+
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+    window.location = "{% url 'Officer:ViewMachineBooking' %}";
+</script>
+{% endif %}
+
+<!-- Custom Styles -->
+<style>
+body {
+    background: #e0f2f1;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card-booking {
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    background: linear-gradient(145deg, #ffffff, #e8f5e9);
+    transition: transform 0.3s;
+}
+.card-booking:hover {
+    transform: translateY(-5px);
+}
+
+.card-header-booking {
+    background: linear-gradient(135deg, #43a047, #81c784);
+    color: white;
+    font-weight: 600;
+}
+
+.table thead {
+    background: #a5d6a7;
+    color: #1b5e20;
+}
+
+.machine-img {
+    width: 100px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #c8e6c9;
+}
+
+.read-more {
+    cursor: pointer;
+    color: #1b5e20;
+    font-weight: 600;
+}
+.read-more:hover {
+    text-decoration: underline;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    font-weight: 600;
+    color: white;
+}
+
+.status-payment {
+    background: #43a047;
+}
+.status-notify {
+    background: #1e88e5;
+}
+.status-collected {
+    background: #fbc02d;
+    color: #000;
+}
+
+.btn-alert {
+    background: linear-gradient(135deg, #f57c00, #ffb74d);
+    color: white;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    margin-left: 6px;
+    text-decoration: none;
+}
+.btn-alert:hover {
+    background: linear-gradient(135deg, #ef6c00, #ffa726);
+    color: white;
+}
+</style>
+
+{% endblock content %}

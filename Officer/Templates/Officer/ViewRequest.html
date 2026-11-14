@@ -1,0 +1,214 @@
+{% extends 'Officer/Header.html' %}
+{% load static %}
+{% block content %}
+
+<div style="margin-top: 90px;"></div>
+
+<div class="container my-5">
+
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-success">
+            <i class="fas fa-clipboard-list"></i> Farmer Insurance Requests
+        </h2>
+        <p class="text-muted">Review, approve, or manage historical insurance claims</p>
+    </div>
+
+    <ul class="nav nav-pills mb-4 justify-content-center" id="requestTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pending">
+                <i class="fas fa-hourglass-half"></i> Pending
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#accepted">
+                <i class="fas fa-check-circle"></i> Accepted
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#rejected">
+                <i class="fas fa-times-circle"></i> Rejected
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+
+        <div class="tab-pane fade show active" id="pending">
+            {% for i in farmer %}
+                {% if i.request_status == 0 %}
+                <div class="card card-request mb-4 border-0">
+                    <div class="card-header card-header-request">
+                        Request #{{ i.id }} | {{ i.insurance.insurance_name }}
+                    </div>
+                    <div class="card-body bg-white">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p class="farmer-info mb-2">
+                                    <strong>Farmer:</strong> {{ i.farmer.farmer_name }}<br>
+                                    <strong>Email:</strong> {{ i.farmer.farmer_email }}<br>
+                                    <strong>Contact:</strong> {{ i.farmer.farmer_contact }}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Details:</strong> {{ i.request_details }}
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <h4 class="text-success fw-bold">₹ {{ i.request_amount }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light text-end">
+                        {% if i.request_file %}
+                        <a href="{{ i.request_file.url }}" target="_blank" class="btn-file">
+                            <i class="fas fa-file-alt"></i> View File
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'Officer:Accept' i.id %}" class="btn-accept">Accept</a>
+                        <a href="{% url 'Officer:Reject' i.id %}" class="btn-reject">Reject</a>
+                    </div>
+                </div>
+                {% endif %}
+            {% empty %}
+                <div class="alert alert-light text-center border">No pending requests available.</div>
+            {% endfor %}
+        </div>
+
+        <div class="tab-pane fade" id="accepted">
+            <div class="table-responsive bg-white p-3 rounded shadow">
+                <table class="table table-hover align-middle">
+                    <thead class="table-success">
+                        <tr>
+                            <th>#</th>
+                            <th>Farmer</th>
+                            <th>Insurance Name</th>
+                            <th>Details</th> <th>Amount</th>
+                            <th>File</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in farmer %}
+                            {% if i.request_status == 1 %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td><strong>{{ i.farmer.farmer_name }}</strong></td>
+                                <td>{{ i.insurance.insurance_name }}</td>
+                                <td title="{{ i.request_details }}">
+                                    {{ i.request_details|truncatechars:50 }}
+                                </td>
+                                <td class="text-success fw-bold">₹ {{ i.request_amount }}</td>
+                                <td>
+                                    {% if i.request_file %}
+                                    <a href="{{ i.request_file.url }}" target="_blank" class="text-primary"><i class="fas fa-external-link-alt"></i></a>
+                                    {% else %}-{% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="rejected">
+            <div class="table-responsive bg-white p-3 rounded shadow">
+                <table class="table table-hover align-middle">
+                    <thead class="table-danger">
+                        <tr>
+                            <th>#</th>
+                            <th>Farmer</th>
+                            <th>Insurance Name</th>
+                            <th>Details</th> <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in farmer %}
+                            {% if i.request_status == 2 %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ i.farmer.farmer_name }}</td>
+                                <td>{{ i.insurance.insurance_name }}</td>
+                                <td title="{{ i.request_details }}">
+                                    {{ i.request_details|truncatechars:50 }}
+                                </td>
+                                <td>₹ {{ i.request_amount }}</td>
+                                <td><span class="badge bg-danger">Rejected</span></td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+    window.location="{% url 'Officer:ViewRequest' %}";
+</script>
+{% endif %}
+
+<style>
+body { background:#f4f7f6; font-family: 'Segoe UI', sans-serif; }
+
+/* Navigation Pills */
+.nav-pills .nav-link {
+    color: #2e7d32;
+    font-weight: 600;
+    border-radius: 25px;
+    padding: 10px 20px;
+    margin: 0 5px;
+    transition: 0.3s;
+}
+.nav-pills .nav-link.active {
+    background-color: #2e7d32;
+    color: white;
+    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2);
+}
+
+/* Card Styling */
+.card-request {
+    border-radius:15px;
+    box-shadow:0 6px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+.card-header-request {
+    background: linear-gradient(135deg,#2e7d32,#4caf50);
+    color:white;
+    font-weight:600;
+    border: none;
+}
+
+/* Button Styling */
+.btn-file, .btn-accept, .btn-reject {
+    padding:8px 16px;
+    border-radius:6px;
+    color:white;
+    text-decoration:none;
+    font-size:0.85rem;
+    display: inline-block;
+    font-weight: 500;
+}
+.btn-file { background:#0288d1; margin-right: 5px; }
+.btn-accept { background:#2e7d32; margin-right: 5px; }
+.btn-reject { background:#d32f2f; }
+
+.btn-file:hover, .btn-accept:hover, .btn-reject:hover {
+    filter: brightness(1.1);
+    color: white;
+}
+
+/* Table Styling */
+.table thead th {
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+</style>
+
+{% endblock %}

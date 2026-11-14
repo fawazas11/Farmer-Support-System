@@ -1,0 +1,218 @@
+{% extends 'Admin/Header.html' %}
+{% load static %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body { background-color: #f4f7fa; font-family: 'Inter', sans-serif; }
+
+    /* Header Section */
+    .dashboard-header {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+
+    /* Main Table Card */
+    .claim-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        background: white;
+        overflow: hidden;
+    }
+
+    /* Table Styling */
+    .table thead th {
+        background-color: #f8fafc;
+        color: #64748b;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 1.25rem;
+        border-bottom: 2px solid #edf2f7;
+    }
+
+    .table tbody td {
+        padding: 1.25rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* Details Box Interaction */
+    .details-box {
+        max-width: 400px;
+        line-height: 1.6;
+        color: #334155;
+    }
+    .read-more-btn {
+        font-size: 0.8rem;
+        text-decoration: none;
+        color: #3b82f6;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+    .read-more-btn:hover { color: #1d4ed8; }
+
+    /* Custom Badges */
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.7rem;
+        display: inline-block;
+    }
+    .bg-pending-light { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .bg-accepted-light { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .bg-approved-light { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .bg-paid-light { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .bg-rejected-light { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* Action Buttons */
+    .btn-action {
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        transition: 0.3s;
+        padding: 8px 16px;
+    }
+    .btn-view-file {
+        background-color: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+    .btn-view-file:hover { background: #e2e8f0; color: #1e293b; }
+</style>
+
+<div class="container-fluid py-4">
+    
+    <div class="dashboard-header d-flex justify-content-between align-items-center">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Insurance Claims</h3>
+            <p class="text-muted mb-0 small">Review and process policyholder claim requests</p>
+        </div>
+        <div class="stats-mini d-none d-md-flex gap-4">
+            <div class="text-end">
+                <div class="small text-muted">Total Requests</div>
+                <div class="fw-bold h5 mb-0">{{ data|length }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card claim-card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th class="text-center">Farmer & Bank</th>
+                        <th class="text-center">Scheme</th>
+                        <th class="text-center">Request Details</th>
+                        <th class="text-center">Request Amount</th>
+                        <th class="text-center">Documentation</th>
+                        <th class="text-center">Processing Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in data %}
+                    <tr>
+                        <td class="text-center text-muted fw-bold">{{ forloop.counter }}</td>
+                        <td class="text-center">
+                            <div class="fw-bold">{{ i.farmer.farmer_name }}</div>
+                            <div class="small text-muted">
+                                {{ i.farmer.farmer_bank }}<br>
+                                Acc: {{ i.farmer.farmer_account }}<br>
+                                IFSC: {{ i.farmer.farmer_ifsc }}
+                            </div>
+                        </td>
+                        <td class="text-center text-muted fw-bold">{{ i.insurance.insurance_name }}</td>
+                        <td class="text-center text-muted fw-bold">{{ i.request_details }}</td>
+                        <td class="text-center text-muted fw-bold">{{ i.request_amount }}</td>
+    
+                        
+       
+                        <td class="text-center">
+                            <a href="{{ i.request_file.url }}" class="btn btn-action btn-view-file" target="_blank">
+                                <i class="far fa-file-pdf me-2 text-danger"></i> View File
+                            </a>
+                        </td>
+
+                        <td class="text-center">
+                            <div class="d-flex flex-column align-items-center gap-2">
+                                {% if i.request_status == 1 %}
+                                    <span class="status-badge bg-pending-light">PENDING REVIEW</span>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'Admin:AcceptClaim' i.id %}" class="btn btn-sm btn-success btn-action px-3">
+                                            <i class="fas fa-check me-1"></i> Accept
+                                        </a>
+                                        <a href="{% url 'Admin:RejectClaim' i.id %}" class="btn btn-sm btn-outline-danger btn-action px-3">
+                                            <i class="fas fa-times me-1"></i> Reject
+                                        </a>
+                                    </div>
+                                {% elif i.request_status == 3 %}
+                                    <span class="status-badge bg-accepted-light">ACCEPTED</span>
+                                    <a href="{% url 'Admin:Amount' i.id %}" class="btn btn-sm btn-warning btn-action w-100">
+                                        <i class="fas fa-coins me-1"></i> Assign Amount
+                                    </a>
+                                {% elif i.request_status == 4 %}
+                                    <span class="status-badge bg-accepted-light">Pending Claim</span>
+                         
+                                {% elif i.request_status == 5 %}
+                                    <a href="{% url 'Admin:Pay' i.id %}" class="btn btn-sm btn-primary btn-action w-100">
+                                        <i class="fas fa-credit-card me-1"></i> Process Payment
+                                    </a>
+                                {% elif i.request_status == 6 %}
+                                    <span class="status-badge bg-paid-light text-success">
+                                        <i class="fas fa-check-double me-1"></i> SETTLED / PAID
+                                    </span>
+                                {% elif i.request_status == 2 %}
+                                    <span class="status-badge bg-rejected-light">REJECTED</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="opacity-25 mb-3 d-block mx-auto">
+                            No insurance claim requests are currently available.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleDetails(id) {
+    let shortText = document.getElementById("short-" + id);
+    let fullText = document.getElementById("full-" + id);
+    let btn = document.getElementById("btn-" + id);
+
+    if (fullText.classList.contains("d-none")) {
+        fullText.classList.remove("d-none");
+        shortText.classList.add("d-none");
+        btn.innerHTML = 'SHOW LESS <i class="fas fa-chevron-up ms-1 small"></i>';
+    } else {
+        fullText.classList.add("d-none");
+        shortText.classList.remove("d-none");
+        btn.innerHTML = 'READ FULL DETAILS <i class="fas fa-chevron-down ms-1 small"></i>';
+    }
+}
+</script>
+
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+    window.location = "{% url 'Admin:RequestClaimlist' %}";
+</script>
+{% endif %}
+
+{% endblock content %}
